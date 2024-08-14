@@ -43,6 +43,8 @@ contract HugsMerkleAirdrop {
         i_airdropToken.safeTransfer(account, amount);
     }
 
+    // >>---------------------->> helper functions
+    
     function getMerkleRoot() external view returns (bytes32) {
         return i_merkleRoot;
     }
