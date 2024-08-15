@@ -44,7 +44,7 @@ contract HugsMerkleAirdrop {
     }
 
     // >>---------------------->> helper functions
-    
+
     function getMerkleRoot() external view returns (bytes32) {
         return i_merkleRoot;
     }
