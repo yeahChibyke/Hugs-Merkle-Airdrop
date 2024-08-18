@@ -25,7 +25,7 @@ contract HugsMerkleAirdrop {
         i_airdropToken = airdropToken;
     }
 
-    function claimHugs(address account, uint56 amount, bytes32[] calldata merkleProof) external {
+    function claimHugs(address account, uint256 amount, bytes32[] calldata merkleProof) external {
         if (s_hasClaimedHugs[account]) {
             revert HugsMerkleAirdrop__AlreadyClaimedHugs();
         }
