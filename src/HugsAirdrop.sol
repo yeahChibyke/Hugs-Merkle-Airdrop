@@ -5,11 +5,11 @@ import {HugsToken} from "./HugsToken.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-contract HugsMerkleAirdrop {
+contract HugsAirdrop {
     using SafeERC20 for IERC20;
 
-    error HugsMerkleAirdrop__InvalidProof();
-    error HugsMerkleAirdrop__AlreadyClaimedHugs();
+    error HugsAirdrop__InvalidProof();
+    error HugsAirdrop__AlreadyClaimedHugs();
 
     address[] claimers;
 
@@ -27,13 +27,13 @@ contract HugsMerkleAirdrop {
 
     function claimHugs(address account, uint256 amount, bytes32[] calldata merkleProof) external {
         if (s_hasClaimedHugs[account]) {
-            revert HugsMerkleAirdrop__AlreadyClaimedHugs();
+            revert HugsAirdrop__AlreadyClaimedHugs();
         }
 
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(account, amount))));
 
         if (!MerkleProof.verify(merkleProof, i_merkleRoot, leaf)) {
-            revert HugsMerkleAirdrop__InvalidProof();
+            revert HugsAirdrop__InvalidProof();
         }
 
         s_hasClaimedHugs[account] = true;

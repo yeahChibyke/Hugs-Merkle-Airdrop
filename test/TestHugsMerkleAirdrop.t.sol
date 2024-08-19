@@ -2,12 +2,14 @@
 pragma solidity ^0.8.24;
 
 import {HugsToken} from "../src/HugsToken.sol";
-import {HugsMerkleAirdrop} from "../src/HugsMerkleAirdrop.sol";
+import {HugsAirdrop} from "../src/HugsAirdrop.sol";
 import {Test, console2} from "forge-std/Test.sol";
+import {DeployHugsAirdrop} from "../script/DeployHugsAirdrop.s.sol";
+import {ZkSyncChainChecker} from "Foundry-Devops/src/ZkSyncChainChecker.sol";
 
-contract TestHugsMerkleAirdrop is Test {
+contract TestHugsAirdrop is ZkSyncChainChecker, Test {
     HugsToken token;
-    HugsMerkleAirdrop airdrop;
+    HugsAirdrop airdrop;
 
     bytes32 ROOT = 0xaa5d581231e596618465a56aa0f5870ba6e20785fe436d5bfb82b08662ccc7c4;
 
@@ -21,11 +23,16 @@ contract TestHugsMerkleAirdrop is Test {
     uint256 constant SEND_AMOUNT = 100e18;
 
     function setUp() public {
-        token = new HugsToken();
-        airdrop = new HugsMerkleAirdrop(ROOT, token);
+        if (!isZkSyncChain()) {
+            DeployHugsAirdrop deployer = new DeployHugsAirdrop();
+            (airdrop, token) = deployer.deployHugsAirdrop();
+        } else {
+            token = new HugsToken();
+            airdrop = new HugsAirdrop(ROOT, token);
 
-        token.mint(token.owner(), SEND_AMOUNT); // mint tokens since initial supply was not specified in the HugsToken contract
-        token.transfer(address(airdrop), SEND_AMOUNT); // trasnfer the minted tokens to the airdrop contract, so that the airdrop contract now holds the tokens
+            token.mint(token.owner(), SEND_AMOUNT); // mint tokens since initial supply was not specified in the HugsToken contract
+            token.transfer(address(airdrop), SEND_AMOUNT); // trasnfer the minted tokens to the airdrop contract, so that the airdrop contract now holds the tokens
+        }
 
         (user, userPrvKey) = makeAddrAndKey("user");
     }
