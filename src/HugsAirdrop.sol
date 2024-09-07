@@ -21,6 +21,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
     error HugsAirdrop__InvalidProof();
     /// @dev thrown when an account wants to claim Hugs tokens more than once
     error HugsAirdrop__AlreadyClaimedHugs();
+    /// @dev thrown when the provided ECDSA signature is invalid
     error HugsAirdrop__SignatureInvalid();
 
     // >----------> TYPE DECLARATION
@@ -41,6 +42,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
     /// @dev mapping to track which addresses have already claimed their airdrop
     mapping(address => bool) private s_hasClaimedHugs;
 
+    /// @dev keccak256 hash of the AirdropClaim struct's type signature, used for EIP-712 compliant message signing
     bytes32 private constant MESSAGE_TYPEHASH = keccak256("AirdropClaim(address account, uint256 amount)");
 
     // >----------> EVENTS
@@ -59,11 +61,19 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
 
     // >----------> EXTERNAL FUNCTIONS
     /**
-     * @notice & @dev claims Hugs tokens if the caller has a valid Merkle proof
-     * @dev reverts if the proof is invalid, or the tokens have already been claimed
-     * @param account address of claimer
-     * @param amount amount of tokens to claim
-     * @param merkleProof Merkle proof to validate the claim
+     * @notice allows eligible users to claim Hugs tokens from the airdrop
+     * @dev ensures the user has not previously claimed, verifies the ECDSA signature and the Merkle proof for eligibility
+     * @param account address of the account claiming the Hugs tokens
+     * @param amount number of Hugs tokens to claim
+     * @param merkleProof Merkle proof that confirms the account's eligibility for the airdrop
+     * @param v recovery byte of the ECDSA signature
+     * @param r first 32 bytes of the ECDSA signature
+     * @param s second 32 bytes of the ECDSA signature
+     * @notice emits a {HugClaimed} event upon successful claim
+     *
+     * @custom:error HugsAirdrop__AlreadyClaimedHugs thrown if the account has already claimed Hugs tokens
+     * @custom:error HugsAirdrop__SignatureInvalid thrown if the provided ECDSA signature is invalid
+     * @custom:error HugsAirdrop__InvalidProof thrown if the provided Merkle proof is invalid
      */
     function claimHugs(address account, uint256 amount, bytes32[] calldata merkleProof, uint8 v, bytes32 r, bytes32 s)
         external
@@ -73,7 +83,6 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
             revert HugsAirdrop__AlreadyClaimedHugs();
         }
 
-        // check signature validity
         if (!_isValidSignature(account, getMessage(account, amount), v, r, s)) {
             revert HugsAirdrop__SignatureInvalid();
         }
@@ -92,6 +101,16 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
     }
 
     // >----------> INTERNAL FUNCTIONS
+    /**
+     * @notice validates the ECDSA signature for the Hugs token claim
+     * @dev verifies that the signature provided corresponds to the account's address and message digest
+     * @param account address that is expected to have signed the message
+     * @param digest hashed message that was signed
+     * @param v recovery byte of the signature
+     * @param r first 32 bytes of the signature
+     * @param s second 32 bytes of the signature
+     * @return bool returns true if the signature is valid and was signed by the receiver, otherwise false
+     */
     function _isValidSignature(address account, bytes32 digest, uint8 v, bytes32 r, bytes32 s)
         internal
         pure
@@ -102,17 +121,24 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
     }
 
     // >>---------------------->> EXTERNAL & PUBLIC VIEW FUNCTIONS
+    /**
+     * @notice generates the EIP-712 message digest for a Hugs claim
+     * @dev creates a hash of the AirdropClaim struct using the EIP-712 standard for typed structured data
+     * @param account address claiming the Hugs token(s)
+     * @param amount number of Hugs tokens being claimed
+     * @return bytes32 the hashed message that represents the Airdrop claim
+     */
     function getMessage(address account, uint256 amount) public view returns (bytes32) {
         return
             _hashTypedDataV4(keccak256(abi.encode(MESSAGE_TYPEHASH, AirdropClaim({account: account, amount: amount}))));
     }
 
-    /// @dev returns the Merkle root used for the airdrop
+    /// @dev provides the Merkle root stored in the contract, which is used to verify the legitimacy of a claim
     function getMerkleRoot() external view returns (bytes32) {
         return i_merkleRoot;
     }
 
-    /// @dev returns the ERC20 token being airdropped
+    /// @dev provides the reference to the ERC20 token contract used for the airdrop
     function getAirdropToken() external view returns (IERC20) {
         return i_airdropToken;
     }
