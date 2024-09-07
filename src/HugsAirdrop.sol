@@ -10,7 +10,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 
 /**
  * @title Hugs Airdrop
- * @author Chukwubuike Victory Chime
+ * @author Chukwubuike Victory Chime a.k.a. yeahChibyke
  * @dev This contract handles the distribution of Hugs tokens via a Merkle Tree-based airdrop
  */
 contract HugsAirdrop is EIP712, ReentrancyGuard {
