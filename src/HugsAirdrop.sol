@@ -83,7 +83,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
             revert HugsAirdrop__AlreadyClaimedHugs();
         }
 
-        if (!_isValidSignature(account, getMessage(account, amount), v, r, s)) {
+        if (!_isValidSignature(account, getMessageHash(account, amount), v, r, s)) {
             revert HugsAirdrop__SignatureInvalid();
         }
 
@@ -128,7 +128,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
      * @param amount number of Hugs tokens being claimed
      * @return bytes32 the hashed message that represents the Airdrop claim
      */
-    function getMessage(address account, uint256 amount) public view returns (bytes32) {
+    function getMessageHash(address account, uint256 amount) public view returns (bytes32) {
         return
             _hashTypedDataV4(keccak256(abi.encode(MESSAGE_TYPEHASH, AirdropClaim({account: account, amount: amount}))));
     }

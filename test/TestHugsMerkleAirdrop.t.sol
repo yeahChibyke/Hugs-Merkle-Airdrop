@@ -22,6 +22,8 @@ contract TestHugsAirdrop is ZkSyncChainChecker, Test {
     uint256 constant CLAIM_AMOUNT = 25e18;
     uint256 constant SEND_AMOUNT = 100e18;
 
+    address gasPayer;
+
     function setUp() public {
         if (!isZkSyncChain()) {
             DeployHugsAirdrop deployer = new DeployHugsAirdrop();
@@ -35,14 +37,21 @@ contract TestHugsAirdrop is ZkSyncChainChecker, Test {
         }
 
         (user, userPrvKey) = makeAddrAndKey("user");
+
+        gasPayer = makeAddr("gasPayer");
     }
 
     function testUserCanClaim() public {
         uint256 initBalOfUser = token.balanceOf(user);
         uint256 tokensInAirDrop = token.balanceOf(address(airdrop));
 
-        vm.prank(user);
-        airdrop.claimHugs(user, CLAIM_AMOUNT, PROOF);
+        bytes32 digest = airdrop.getMessageHash(user, CLAIM_AMOUNT);
+
+        //  sign a message with user private key
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(userPrvKey, digest);
+
+        vm.prank(gasPayer); // gaspayer calls the claimHugs function using signed message
+        airdrop.claimHugs(user, CLAIM_AMOUNT, PROOF, v, r, s);
 
         uint256 currentBalOfUser = token.balanceOf(user);
 
@@ -50,5 +59,15 @@ contract TestHugsAirdrop is ZkSyncChainChecker, Test {
 
         assertEq(currentBalOfUser - initBalOfUser, CLAIM_AMOUNT);
         assertEq(remTokensInAirDrop, tokensInAirDrop - currentBalOfUser);
+    }
+
+    function testClaimFailWithInvalidSignedMessage() public {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+
+        vm.prank(gasPayer); 
+        vm.expectRevert(HugsAirdrop.HugsAirdrop__SignatureInvalid.selector);
+        airdrop.claimHugs(user, CLAIM_AMOUNT, PROOF, v, r, s);
     }
 }
