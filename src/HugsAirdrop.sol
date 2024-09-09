@@ -32,7 +32,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
 
     // >----------> VARIABLES
     /// @dev array to store addresses of claimers
-    address[] claimers;
+    address[] private s_claimers;
 
     /// @dev Merkle root used to validate airdrop claims
     bytes32 private immutable i_merkleRoot;
@@ -95,6 +95,8 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
 
         s_hasClaimedHugs[account] = true;
 
+        s_claimers.push(account);
+
         emit HugClaimed(account, amount);
 
         i_airdropToken.safeTransfer(account, amount);
@@ -141,5 +143,9 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
     /// @dev provides the reference to the ERC20 token contract used for the airdrop
     function getAirdropToken() external view returns (IERC20) {
         return i_airdropToken;
+    }
+
+    function getAllClaimers() external view returns (address[] memory) {
+        return s_claimers;
     }
 }

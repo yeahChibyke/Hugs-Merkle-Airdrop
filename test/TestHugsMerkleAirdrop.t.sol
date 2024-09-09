@@ -66,7 +66,7 @@ contract TestHugsAirdrop is ZkSyncChainChecker, Test {
         bytes32 r;
         bytes32 s;
 
-        vm.prank(gasPayer); 
+        vm.prank(gasPayer);
         vm.expectRevert(HugsAirdrop.HugsAirdrop__SignatureInvalid.selector);
         airdrop.claimHugs(user, CLAIM_AMOUNT, PROOF, v, r, s);
     }
