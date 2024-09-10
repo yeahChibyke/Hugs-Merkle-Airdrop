@@ -40,7 +40,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
     IERC20 private immutable i_airdropToken;
 
     /// @dev mapping to track which addresses have already claimed their airdrop
-    mapping(address => bool) private s_hasClaimedHugs;
+    mapping(address => bool) public hasClaimedHugs; // I made this public because I want to call it in the test contract
 
     /// @dev keccak256 hash of the AirdropClaim struct's type signature, used for EIP-712 compliant message signing
     bytes32 private constant MESSAGE_TYPEHASH = keccak256("AirdropClaim(address account, uint256 amount)");
@@ -79,7 +79,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
         external
         nonReentrant
     {
-        if (s_hasClaimedHugs[account]) {
+        if (hasClaimedHugs[account]) {
             revert HugsAirdrop__AlreadyClaimedHugs();
         }
 
@@ -93,7 +93,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
             revert HugsAirdrop__InvalidProof();
         }
 
-        s_hasClaimedHugs[account] = true;
+        hasClaimedHugs[account] = true;
 
         s_claimers.push(account);
 
@@ -145,7 +145,7 @@ contract HugsAirdrop is EIP712, ReentrancyGuard {
         return i_airdropToken;
     }
 
-    function getAllClaimers() external view returns (address[] memory) {
+    function getClaimers() external view returns (address[] memory) {
         return s_claimers;
     }
 }
