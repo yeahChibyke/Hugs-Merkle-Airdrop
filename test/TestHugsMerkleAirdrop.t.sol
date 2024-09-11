@@ -77,7 +77,7 @@ contract TestHugsAirdrop is Test {
 
         assertEq(currentBalOfAlice - initBalOfAlice, CLAIM_AMOUNT);
         assertEq(currentTokenInAIrdrop, tokenInAirdrop - currentBalOfAlice);
-        assert(airdrop.hasClaimedHugs(Alice) == true);
+        assert(airdrop.getClaimStatus(Alice) == true);
     }
 
     function testClaimFailWithInvalidSignature() public {
@@ -119,7 +119,7 @@ contract TestHugsAirdrop is Test {
         uint256 airdropBalAfterBobClaim = token.balanceOf(address(airdrop));
         assert(finalBobBal == CLAIM_AMOUNT);
         assert(airdropBal > airdropBalAfterBobClaim);
-        assert(airdrop.hasClaimedHugs(Bob) == true);
+        assert(airdrop.getClaimStatus(Bob) == true);
 
         // Clara
         airdrop.claimHugs(Clara, CLAIM_AMOUNT, claraProof, a, b, c);
@@ -127,7 +127,7 @@ contract TestHugsAirdrop is Test {
         uint256 airdropBalAfterClaraClaim = token.balanceOf(address(airdrop));
         assert(finalClaraBal == CLAIM_AMOUNT);
         assert(airdropBalAfterBobClaim > airdropBalAfterClaraClaim);
-        assert(airdrop.hasClaimedHugs(Clara) == true);
+        assert(airdrop.getClaimStatus(Clara) == true);
 
         // Dan
         airdrop.claimHugs(Dan, CLAIM_AMOUNT, danProof, x, y, z);
@@ -135,7 +135,7 @@ contract TestHugsAirdrop is Test {
         uint256 airdropBalAfterDanClaim = token.balanceOf(address(airdrop));
         assert(finalDanBal == CLAIM_AMOUNT);
         assert(airdropBalAfterClaraClaim > airdropBalAfterDanClaim);
-        assert(airdrop.hasClaimedHugs(Dan) == true);
+        assert(airdrop.getClaimStatus(Dan) == true);
 
         vm.stopPrank();
     }
