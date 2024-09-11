@@ -61,9 +61,6 @@ contract TestHugsAirdrop is Test {
     }
 
     function testCanClaim() public {
-        uint256 initGas = gasleft();
-        console2.log(initGas);
-
         uint256 initBalOfAlice = token.balanceOf(Alice);
         uint256 tokenInAirdrop = token.balanceOf(address(airdrop));
 
@@ -82,8 +79,6 @@ contract TestHugsAirdrop is Test {
         assertEq(currentTokenInAIrdrop, tokenInAirdrop - currentBalOfAlice);
         assert(airdrop.hasClaimedHugs(Alice) == true);
 
-        console2.log("Gas used:", initGas - gasleft()); // Log the gas used
-
         console2.log(Alice);
         console2.log(Bob);
         console2.log(Clara);
@@ -91,9 +86,6 @@ contract TestHugsAirdrop is Test {
     }
 
     function testClaimFailWithInvalidSignature() public {
-        uint256 initGas = gasleft();
-        console2.log(initGas);
-
         uint8 v;
         bytes32 r;
         bytes32 s;
@@ -101,14 +93,9 @@ contract TestHugsAirdrop is Test {
         vm.prank(gasPayer);
         vm.expectRevert(HugsAirdrop.HugsAirdrop__SignatureInvalid.selector);
         airdrop.claimHugs(Alice, CLAIM_AMOUNT, aliceProof, v, r, s);
-
-        console2.log("Gas used:", initGas - gasleft()); // Log the gas used
     }
 
     function testMultipleClaim() public {
-        uint256 initGas = gasleft();
-        console2.log(initGas);
-
         uint256 initBobBal = token.balanceOf(Bob);
         uint256 initClaraBal = token.balanceOf(Clara);
         uint256 initDanBal = token.balanceOf(Dan);
@@ -151,14 +138,9 @@ contract TestHugsAirdrop is Test {
         uint256 airdropBalAfterDanClaim = token.balanceOf(address(airdrop));
         assert(finalDanBal == CLAIM_AMOUNT);
         assert(airdropBalAfterDanClaim == 25e18);
-
-        console2.log("Gas used:", initGas - gasleft()); // Log the gas used
     }
 
-    function testFailWhenRepeatClaim() public {
-        uint256 initGas = gasleft();
-        console2.log(initGas);
-
+    function testRepeatClaimWillFail() public {
         uint256 initAliceBal = token.balanceOf(Alice);
         uint256 airdropBalBeforeAliceFirstClaim = token.balanceOf(address(airdrop));
 
@@ -188,7 +170,5 @@ contract TestHugsAirdrop is Test {
 
         assert(balOfAliceAfterFailClaim == finalAliceBal);
         assert(airdropBalAfterAliceSuccessClaim == airdropBalAfterAliceFailClaim);
-
-        console2.log("Gas used:", initGas - gasleft()); // Log the gas used
     }
 }
