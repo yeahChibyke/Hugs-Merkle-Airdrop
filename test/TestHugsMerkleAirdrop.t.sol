@@ -78,11 +78,6 @@ contract TestHugsAirdrop is Test {
         assertEq(currentBalOfAlice - initBalOfAlice, CLAIM_AMOUNT);
         assertEq(currentTokenInAIrdrop, tokenInAirdrop - currentBalOfAlice);
         assert(airdrop.hasClaimedHugs(Alice) == true);
-
-        console2.log(Alice);
-        console2.log(Bob);
-        console2.log(Clara);
-        console2.log(Dan);
     }
 
     function testClaimFailWithInvalidSignature() public {
@@ -124,6 +119,7 @@ contract TestHugsAirdrop is Test {
         uint256 airdropBalAfterBobClaim = token.balanceOf(address(airdrop));
         assert(finalBobBal == CLAIM_AMOUNT);
         assert(airdropBalAfterBobClaim == 75e18);
+        assert(airdrop.hasClaimedHugs(Bob) == true);
 
         // Clara
         airdrop.claimHugs(Clara, CLAIM_AMOUNT, claraProof, a, b, c);
@@ -131,6 +127,7 @@ contract TestHugsAirdrop is Test {
         uint256 airdropBalAfterClaraClaim = token.balanceOf(address(airdrop));
         assert(finalClaraBal == CLAIM_AMOUNT);
         assert(airdropBalAfterClaraClaim == 50e18);
+        assert(airdrop.hasClaimedHugs(Clara) == true);
 
         // Dan
         airdrop.claimHugs(Dan, CLAIM_AMOUNT, danProof, x, y, z);
@@ -138,6 +135,9 @@ contract TestHugsAirdrop is Test {
         uint256 airdropBalAfterDanClaim = token.balanceOf(address(airdrop));
         assert(finalDanBal == CLAIM_AMOUNT);
         assert(airdropBalAfterDanClaim == 25e18);
+        assert(airdrop.hasClaimedHugs(Dan) == true);
+
+        vm.stopPrank();
     }
 
     function testRepeatClaimWillFail() public {
