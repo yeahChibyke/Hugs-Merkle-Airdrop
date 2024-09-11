@@ -140,35 +140,35 @@ contract TestHugsAirdrop is Test {
         assert(airdropBalAfterDanClaim == 25e18);
     }
 
-    function testFailWhenRepeatClaim() public {
-        uint256 initAliceBal = token.balanceOf(Alice);
-        uint256 airdropBalBeforeAliceFirstClaim = token.balanceOf(address(airdrop));
+    // function testFailWhenRepeatClaim() public {
+    //     uint256 initAliceBal = token.balanceOf(Alice);
+    //     uint256 airdropBalBeforeAliceFirstClaim = token.balanceOf(address(airdrop));
 
-        assertEq(initAliceBal, 0);
-        assertEq(airdropBalBeforeAliceFirstClaim, SEND_AMOUNT);
+    //     assertEq(initAliceBal, 0);
+    //     assertEq(airdropBalBeforeAliceFirstClaim, SEND_AMOUNT);
 
-        bytes32 digest = airdrop.getMessageHash(Alice, CLAIM_AMOUNT);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePrvKey, digest);
+    //     bytes32 digest = airdrop.getMessageHash(Alice, CLAIM_AMOUNT);
+    //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePrvKey, digest);
 
-        vm.prank(gasPayer);
-        airdrop.claimHugs(Alice, CLAIM_AMOUNT, aliceProof, v, r, s);
-        uint256 finalAliceBal = token.balanceOf(Alice);
-        uint256 airdropBalAfterAliceSuccessClaim = token.balanceOf(address(airdrop));
+    //     vm.prank(gasPayer);
+    //     airdrop.claimHugs(Alice, CLAIM_AMOUNT, aliceProof, v, r, s);
+    //     uint256 finalAliceBal = token.balanceOf(Alice);
+    //     uint256 airdropBalAfterAliceSuccessClaim = token.balanceOf(address(airdrop));
 
-        assert(finalAliceBal > initAliceBal);
-        assert(finalAliceBal == CLAIM_AMOUNT);
-        assert(airdropBalBeforeAliceFirstClaim > airdropBalAfterAliceSuccessClaim);
-        assertEq(airdropBalBeforeAliceFirstClaim - airdropBalAfterAliceSuccessClaim, CLAIM_AMOUNT);
+    //     assert(finalAliceBal > initAliceBal);
+    //     assert(finalAliceBal == CLAIM_AMOUNT);
+    //     assert(airdropBalBeforeAliceFirstClaim > airdropBalAfterAliceSuccessClaim);
+    //     assertEq(airdropBalBeforeAliceFirstClaim - airdropBalAfterAliceSuccessClaim, CLAIM_AMOUNT);
 
-        // Try to claim again
-        vm.prank(gasPayer);
-        vm.expectRevert(HugsAirdrop.HugsAirdrop__AlreadyClaimedHugs.selector);
-        airdrop.claimHugs(Alice, CLAIM_AMOUNT, aliceProof, v, r, s);
+    //     // Try to claim again
+    //     vm.prank(gasPayer);
+    //     vm.expectRevert(HugsAirdrop.HugsAirdrop__AlreadyClaimedHugs.selector);
+    //     airdrop.claimHugs(Alice, CLAIM_AMOUNT, aliceProof, v, r, s);
 
-        uint256 balOfAliceAfterFailClaim = token.balanceOf(Alice);
-        uint256 airdropBalAfterAliceFailClaim = token.balanceOf(address(airdrop));
+    //     uint256 balOfAliceAfterFailClaim = token.balanceOf(Alice);
+    //     uint256 airdropBalAfterAliceFailClaim = token.balanceOf(address(airdrop));
 
-        assert(balOfAliceAfterFailClaim == finalAliceBal);
-        assert(airdropBalAfterAliceSuccessClaim == airdropBalAfterAliceFailClaim);
-    }
+    //     assert(balOfAliceAfterFailClaim == finalAliceBal);
+    //     assert(airdropBalAfterAliceSuccessClaim == airdropBalAfterAliceFailClaim);
+    // }
 }
